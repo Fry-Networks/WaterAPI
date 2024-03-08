@@ -18,21 +18,21 @@ export const iopoolAccountScheme = new mongoose.Schema({
 });
 
 export interface iopoolAccount extends mongoose.Document {
-    user_id: mongoose.Schema.Types.ObjectId | String,
-    timestamp: Date,
-    api_key: String,
-    title: String,
-    iopool_id: String,
-    app_key: String,
-    latestMeasure: {
-      temperature: Number,
-      ph: Number,
-      orp: Number,
-      mode: String,
-      isValid: Boolean,
-      ecoId: String,
-      measuredAt: String,
-    }
+  user_id: mongoose.Schema.Types.ObjectId | String;
+  timestamp: Date;
+  api_key: String;
+  title: String;
+  iopool_id: String;
+  app_key: String;
+  latestMeasure: {
+    temperature: Number;
+    ph: Number;
+    orp: Number;
+    mode: String;
+    isValid: Boolean;
+    ecoId: String;
+    measuredAt: String;
+  };
 }
 
 export const IopoolAccountModel = mongoose.model<iopoolAccount>(

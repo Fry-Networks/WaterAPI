@@ -1,5 +1,5 @@
-import mongoose, { mongo } from 'mongoose';
 import 'dotenv/config';
+import mongoose from 'mongoose';
 import { EventEmitter } from 'node:events';
 export async function connect() {
     const uri = process.env.MONGO_URI;
@@ -21,20 +21,6 @@ export async function connect() {
 
     mongoose.connection.on('disconnected', () => {
         console.log('Disconnected from MongoDB!');
-    });
-
-
-    mongoose.connection.on('open', async () => {
-        const accountCollection = mongoose.connection.collection('weather_accounts');
-        const changeStream = accountCollection.watch();
-        changeStream.on('change', (change) => {
-            if (change.operationType === 'insert') {
-                newApiKeyEvent.emit('newApiKey', change.fullDocument._id);
-            }
-            if (change.operationType === 'delete') {
-                newApiKeyEvent.emit('deleteApiKey', change.documentKey._id);
-            }
-        });
     });
 }
 
