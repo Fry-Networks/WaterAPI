@@ -1,0 +1,1 @@
+export const IO_POOL_URL = 'https://api.iopool.com/v1/pools'

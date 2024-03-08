@@ -3,6 +3,7 @@ import bodyparser from "body-parser";
 import cors from "cors";
 import express from "express";
 import { rateLimit } from "express-rate-limit";
+import { IO_POOL_URL } from "./const.js";
 import { connect } from "./db/connect.js";
 import { IopoolAccountModel } from "./db/models/iopool_account.js";
 import { getUserByAddress } from "./db/models/users-schema.js";
@@ -44,7 +45,7 @@ async function validateKey(apiKey: any): Promise<any> {
       "x-api-key": apiKey,
     };
    const response = await axios
-      .get("https://api.iopool.com/v1/pools", { headers })
+      .get(IO_POOL_URL, { headers })
       return { success: true, response:response?.data?.[0] };
   } catch (error) {
     return { success: false, response: error };
@@ -83,6 +84,9 @@ async function fetchDataDynamically() {
 // Start continuous data retrieval when the application starts
 setInterval(fetchDataDynamically, 10 * 60 * 1000); // Run every 10 minutes
 
+/**
+ * API to get Key From Users
+ */
 app.post("/api/submitIopool", async function (req, res) {
   try {
     const apiKey = req.body.apiKey;
