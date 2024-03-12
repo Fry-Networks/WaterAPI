@@ -66,6 +66,10 @@ async function fetchDataDynamically() {
           const latestMeasureString = JSON.stringify(document.latestMeasure);
           const responseMeasureString = JSON.stringify(response.latestMeasure);
           if (latestMeasureString !== responseMeasureString) {
+            document.measurementsHistory.push({
+              measurement: document.latestMeasure,
+              timestamp: new Date()
+            });
             document.latestMeasure = response.latestMeasure;
             await document.save();
             console.log(`Updated document with API key: ${apiKey}`);
@@ -110,7 +114,10 @@ app.post("/api/submitIopool", async function (req, res) {
         api_key: apiKey,
         title: response.title,
         latestMeasure: response.latestMeasure,
-        iopool_id: response.id
+        iopool_id: response.id,
+        metadata: {
+          data_type: "iopool",
+        }
       });
       await key.save();
 

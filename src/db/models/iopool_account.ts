@@ -1,4 +1,19 @@
 import mongoose from "mongoose";
+
+// Define a sub-document schema for measurement history
+const measurementSchema = new mongoose.Schema({
+  measurement: {
+    temperature: Number,
+    ph: Number,
+    orp: Number,
+    mode: String,
+    isValid: Boolean,
+    ecoId: String,
+    measuredAt: String,
+  },
+  timestamp: { type: Date, default: Date.now }
+});
+
 export const iopoolAccountScheme = new mongoose.Schema({
   user_id: mongoose.Schema.Types.ObjectId,
   timestamp: Date,
@@ -15,6 +30,10 @@ export const iopoolAccountScheme = new mongoose.Schema({
     ecoId: String,
     measuredAt: String,
   },
+  measurementsHistory: [measurementSchema],
+  metadata: {
+    data_type: String,
+},
 });
 
 export interface iopoolAccount extends mongoose.Document {
@@ -33,6 +52,10 @@ export interface iopoolAccount extends mongoose.Document {
     ecoId: String;
     measuredAt: String;
   };
+  measurementsHistory: Array<{ measurement: any, timestamp: Date }>;
+  metadata: {
+    data_type: string;
+  }
 }
 
 export const IopoolAccountModel = mongoose.model<iopoolAccount>(
