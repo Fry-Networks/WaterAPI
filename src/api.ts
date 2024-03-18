@@ -110,7 +110,7 @@ app.post("/api/submitIopool", async function (req, res) {
 
     if (existingKey) {
       return res.status(409).send({
-        message: "App Key already exists in the database.",
+        message: "This api key already exists in the database.",
         status: "ERROR",
       });
     }
@@ -137,7 +137,7 @@ app.post("/api/submitIopool", async function (req, res) {
     } else {
       // If the key is invalid, return an error
       return res.status(400).send({
-        message: "Key is invalid. Please Enter Valid App Key",
+        message: "Key is invalid. Please Enter Valid Api Key",
         status: "ERROR",
       });
     }
