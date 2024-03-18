@@ -5,7 +5,7 @@ import express from "express";
 import { rateLimit } from "express-rate-limit";
 import { IO_POOL_URL } from "./const.js";
 import { connect } from "./db/connect.js";
-import { IopoolAccountModel } from "./db/models/iopool_account.js";
+import { IopoolAccountModel, MeasurementTimeSeriesModel } from "./db/models/iopool_account.js";
 import { getUserByAddress } from "./db/models/users-schema.js";
 
 const app = express();
@@ -54,31 +54,40 @@ async function validateKey(apiKey: any): Promise<any> {
 // Function to fetch and update data dynamically for all collections
 async function fetchDataDynamically() {
   try {
-    const collections = [IopoolAccountModel];
+    const documents = await IopoolAccountModel.find();
 
-    for (const CollectionModel of collections) {
-      const documents = await CollectionModel.find();
+    for (const document of documents) {
+      const apiKey = document.api_key;
+      const { success, response } = await validateKey(apiKey);
+      if (success) {
+        const latestMeasureString = JSON.stringify(document.latestMeasure);
+        const responseMeasureString = JSON.stringify(response.latestMeasure);
+        if (latestMeasureString !== responseMeasureString) {
+          // Save previous measurements to historical data collection
+          await MeasurementTimeSeriesModel.create({
+            temperature: document.latestMeasure.temperature,
+            ph: document.latestMeasure.ph,
+            orp: document.latestMeasure.orp,
+            mode: document.latestMeasure.mode,
+            isValid: document.latestMeasure.isValid,
+            ecoId: document.latestMeasure.ecoId,
+            measuredAt: document.latestMeasure.measuredAt,
+            metadata: {
+              data_type: "iopool",
+              iopool_id: document.iopool_id,
+            },
+            timestamp: new Date(),
+          });
 
-      for (const document of documents) {
-        const apiKey = document.api_key;
-        const { success, response } = await validateKey(apiKey);
-        if (success) {
-          const latestMeasureString = JSON.stringify(document.latestMeasure);
-          const responseMeasureString = JSON.stringify(response.latestMeasure);
-          if (latestMeasureString !== responseMeasureString) {
-            document.measurementsHistory.push({
-              measurement: document.latestMeasure,
-              timestamp: new Date()
-            });
-            document.latestMeasure = response.latestMeasure;
-            await document.save();
-            console.log(`Updated document with API key: ${apiKey}`);
-          } else {
-            console.log(`No update needed for document with API key: ${apiKey}`);
-          }
+          // Update latestMeasure in current data collection
+          document.latestMeasure = response.latestMeasure;
+          await document.save();
+          console.log(`Updated document with API key: ${apiKey}`);
         } else {
-          console.error(`Error validating API key: ${apiKey}`, response);
+          console.log(`No update needed for document with API key: ${apiKey}`);
         }
+      } else {
+        console.error(`Error validating API key: ${apiKey}`, response);
       }
     }
   } catch (error) {
@@ -86,7 +95,7 @@ async function fetchDataDynamically() {
   }
 }
 // Start continuous data retrieval when the application starts
-setInterval(fetchDataDynamically, 10 * 60 * 1000); // Run every 10 minutes
+setInterval(fetchDataDynamically, 1 * 60 * 1000); // Run every 10 minutes
 
 /**
  * API to get Key From Users
