@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { startApi } from "./api.js";
+import { startApi } from "./api/api.js";
 
 const startApp = async () => {
   startApi();

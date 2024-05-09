@@ -3,10 +3,11 @@ import bodyparser from "body-parser";
 import cors from "cors";
 import express from "express";
 import { rateLimit } from "express-rate-limit";
-import { IO_POOL_URL } from "./const.js";
-import { connect } from "./db/connect.js";
-import { IopoolAccountModel, MeasurementTimeSeriesModel } from "./db/models/iopool_account.js";
-import { getUserByAddress } from "./db/models/users-schema.js";
+import { IO_POOL_URL } from "../const.js";
+import { connect } from "../db/connect.js";
+import { IopoolAccountModel, MeasurementTimeSeriesModel } from "../db/models/iopool_account.js";
+import { getUserByAddress } from "../db/models/users-schema.js";
+import submitEcowitRoute from "./routes/submitEcowitt.js";
 
 const app = express();
 app.use(cors({origin: '*'}));
@@ -95,7 +96,7 @@ async function fetchDataDynamically() {
   }
 }
 // Start continuous data retrieval when the application starts
-setInterval(fetchDataDynamically, 1 * 60 * 1000); // Run every 10 minutes
+setInterval(fetchDataDynamically, 10 * 60 * 1000); // Run every 10 minutes
 
 /**
  * API to get Key From Users
@@ -129,7 +130,7 @@ app.post("/api/submitIopool", async function (req, res) {
         }
       });
       await key.save();
-
+      
       return res.status(200).send({
         message: "Successfully linked your App Key to your wallet address!\nWe will soon begin to retreive data from your Iopool devices.",
         status: "SUCCESS",
@@ -150,6 +151,8 @@ app.post("/api/submitIopool", async function (req, res) {
     });
   }
 });
+
+app.use(submitEcowitRoute);
 
 export async function startApi() {
   await connect();
