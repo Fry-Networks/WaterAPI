@@ -111,6 +111,7 @@ app.post("/api/submitIopool", async function (req, res) {
       const key = new IopoolAccountModel({
         user_id: user._id,
         timestamp: new Date(),
+        api_type: "iopool",
         api_key: apiKey,
         title: response.title,
         latestMeasure: response.latestMeasure,

@@ -40,6 +40,7 @@ export interface iopoolAccount extends mongoose.Document {
   user_id: mongoose.Schema.Types.ObjectId | String;
   timestamp: Date;
   api_key: String;
+  api_type: String;
   title: String;
   iopool_id: String;
   app_key: String;
