@@ -1,6 +1,5 @@
 import axios from "axios";
 import bodyparser from "body-parser";
-import cors from "cors";
 import express from "express";
 import { rateLimit } from "express-rate-limit";
 import { IO_POOL_URL } from "../const.js";
@@ -10,7 +9,6 @@ import { getUserByAddress } from "../db/models/users-schema.js";
 import submitEcowitRoute from "./routes/submitEcowitt.js";
 
 const app = express();
-app.use(cors({origin: '*'}));
 app.use(bodyparser.json());
 
 // Create a rate limiter that tracks by the 'address' field in the request body
